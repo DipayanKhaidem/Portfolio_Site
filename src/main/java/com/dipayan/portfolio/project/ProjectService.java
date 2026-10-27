@@ -45,9 +45,14 @@ private Project toEntity(ProjectRequest request) {
         this.projectRepository = projectRepository;
     }
 
-   
-public List<ProjectResponse> getAllProjects() {
+public List<ProjectResponse> getAllProjectsIncludingDrafts() {
     return projectRepository.findAll()
+            .stream()
+            .map(this::toResponse)
+            .toList();
+}
+public List<ProjectResponse> getAllProjects() {
+    return projectRepository.findByPublishedTrue()
             .stream()
             .map(this::toResponse)
             .toList();
@@ -55,6 +60,7 @@ public List<ProjectResponse> getAllProjects() {
 
 public ProjectResponse getProjectById(Long id) {
     Project project = projectRepository.findById(id)
+            .filter(Project::isPublished)
             .orElseThrow(() -> new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "Project not found with id: " + id

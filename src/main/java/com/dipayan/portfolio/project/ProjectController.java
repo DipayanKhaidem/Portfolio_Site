@@ -23,6 +23,10 @@ public class ProjectController {
     public List<ProjectResponse> getAllProjects() {
         return projectService.getAllProjects();
     }
+    @GetMapping ("/all")
+    public List<ProjectResponse> getAllProjectsIncludingDrafts(){
+        return projectService.getAllProjectsIncludingDrafts();
+    }
 
     @GetMapping("/{id}")
     public ProjectResponse getProjectById(@PathVariable Long id) {
