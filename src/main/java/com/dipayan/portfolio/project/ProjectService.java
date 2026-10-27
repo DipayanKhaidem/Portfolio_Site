@@ -5,10 +5,39 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.dipayan.portfolio.project.dto.ProjectRequest;
+import com.dipayan.portfolio.project.dto.ProjectResponse;
+
 import java.util.List;
 
 @Service
 public class ProjectService {
+
+    
+private ProjectResponse toResponse(Project project) {
+    return new ProjectResponse(
+            project.getId(),
+            project.getTitle(),
+            project.getDescription(),
+            project.getGithubUrl(),
+            project.getLiveUrl(),
+            project.isFeatured(),
+            project.isPublished(),
+            project.getCreatedAt()
+    );
+}
+
+private Project toEntity(ProjectRequest request) {
+    Project project = new Project();
+    project.setTitle(request.getTitle());
+    project.setDescription(request.getDescription());
+    project.setGithubUrl(request.getGithubUrl());
+    project.setLiveUrl(request.getLiveUrl());
+    project.setFeatured(request.isFeatured());
+    project.setPublished(request.isPublished());
+    return project;
+}
+
 
     private final ProjectRepository projectRepository;
 
@@ -16,37 +45,58 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
-    }
+   
+public List<ProjectResponse> getAllProjects() {
+    return projectRepository.findAll()
+            .stream()
+            .map(this::toResponse)
+            .toList();
+}
 
-    public Project getProjectById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Project not found with id: " + id
-                ));
-    }
+public ProjectResponse getProjectById(Long id) {
+    Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Project not found with id: " + id
+            ));
 
-    public Project createProject(Project project) {
-        return projectRepository.save(project);
-    }
+    return toResponse(project);
+}
 
-    public Project updateProject(Long id, Project updatedProject) {
-        Project existingProject = getProjectById(id);
+public ProjectResponse createProject(ProjectRequest request) {
+    Project project = toEntity(request);
+    Project savedProject = projectRepository.save(project);
 
-        existingProject.setTitle(updatedProject.getTitle());
-        existingProject.setDescription(updatedProject.getDescription());
-        existingProject.setGithubUrl(updatedProject.getGithubUrl());
-        existingProject.setLiveUrl(updatedProject.getLiveUrl());
-        existingProject.setFeatured(updatedProject.isFeatured());
-        existingProject.setPublished(updatedProject.isPublished());
+    return toResponse(savedProject);
+}
 
-        return projectRepository.save(existingProject);
-    }
+public ProjectResponse updateProject(Long id, ProjectRequest request) {
+    Project existingProject = projectRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Project not found with id: " + id
+            ));
 
-    public void deleteProject(Long id) {
-        Project project = getProjectById(id);
-        projectRepository.delete(project);
-    }
+    existingProject.setTitle(request.getTitle());
+    existingProject.setDescription(request.getDescription());
+    existingProject.setGithubUrl(request.getGithubUrl());
+    existingProject.setLiveUrl(request.getLiveUrl());
+    existingProject.setFeatured(request.isFeatured());
+    existingProject.setPublished(request.isPublished());
+
+    Project updatedProject = projectRepository.save(existingProject);
+
+    return toResponse(updatedProject);
+}
+
+public void deleteProject(Long id) {
+    Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Project not found with id: " + id
+            ));
+
+    projectRepository.delete(project);
+}
+
 }

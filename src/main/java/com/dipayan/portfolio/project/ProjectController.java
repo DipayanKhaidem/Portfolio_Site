@@ -1,6 +1,8 @@
 
 package com.dipayan.portfolio.project;
 
+import com.dipayan.portfolio.project.dto.ProjectRequest;
+import com.dipayan.portfolio.project.dto.ProjectResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,26 +20,27 @@ public class ProjectController {
     }
 
     @GetMapping
-    public List<Project> getAllProjects() {
+    public List<ProjectResponse> getAllProjects() {
         return projectService.getAllProjects();
     }
 
     @GetMapping("/{id}")
-    public Project getProjectById(@PathVariable Long id) {
+    public ProjectResponse getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Project createProject(@Valid @RequestBody Project project) {
-        return projectService.createProject(project);
+    public ProjectResponse createProject(
+            @Valid @RequestBody ProjectRequest request) {
+        return projectService.createProject(request);
     }
 
     @PutMapping("/{id}")
-    public Project updateProject(
+    public ProjectResponse updateProject(
             @PathVariable Long id,
-            @Valid @RequestBody Project updatedProject) {
-        return projectService.updateProject(id, updatedProject);
+            @Valid @RequestBody ProjectRequest request) {
+        return projectService.updateProject(id, request);
     }
 
     @DeleteMapping("/{id}")
