@@ -1,6 +1,7 @@
 package com.dipayan.portfolio.project.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 public class ProjectRequest {
 
@@ -12,8 +13,14 @@ public class ProjectRequest {
     @Size(max=2000, message="Description must not exceed 2000 characters")
     private String description;
 
+    @Pattern(regexp="^https?://.*$", message="Invalid GitHub URL")
     private String githubUrl;
-    private String liveUrl;
+
+   @Pattern(
+    regexp = "^$|https?://.+",
+    message = "Live URL must start with http:// or https://"
+)
+private String liveUrl;
 
     private boolean featured=false;
     private boolean published=true;
